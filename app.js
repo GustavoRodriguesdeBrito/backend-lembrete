@@ -1,11 +1,16 @@
 const express = require('express');
 const mongoose = require('mongoose');
+///* inicialização de variávies do ambiente
+const dotenv = require('dotenv');
+const result = dotenv.config({path:'./config/config.env'});
+if(result.error) throw result.error; ///! o sistema não pode prosseguir sem essas variáveis
+console.log("=== variáveis do ambiente carregadas ===\n",result.parsed);
 
 const app = express();
-app.use(express.json()); /// body parser
+app.use(express.json()); ///* body parser
 mongoose
     .connect(
-        'mongodb+srv://gustavo:6s4JSZpJ9WehbCHb@cluster0.hnsxl.mongodb.net/projeto_a3?retryWrites=true&w=majority',
+        process.env.MONGODB_CON_STR,
         { useNewUrlParser: true, useUnifiedTopology: true }
     )
     .then(() => {
@@ -16,8 +21,9 @@ mongoose
     });
 
 const Lembrete = require('./models/Lembrete');
+const moment = require('moment');
 
-/// inserir headers na mensagem de resposta
+///* inserir headers na mensagem de resposta
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader(
@@ -34,8 +40,8 @@ app.use((req, res, next) => {
 app.get('/lembrete', (req, res, next) => {
     Lembrete.find().then((lembretes) => {
       console.log("lembretes: \n", lembretes);
-      //* A maneira com a qual o frontend interpreta os dados requer que eles sejam enviados em um vetor sem chaves no json
-      //* similar a "let lembretes = [{lembr1},{lembr2}...];"
+      ///* A maneira com a qual o frontend interpreta os dados requer que eles sejam enviados em um vetor sem chaves no json
+      ///* similar a "let lembretes = [{lembr1},{lembr2}...];"
       res.status(200).json(lembretes);
     })
     .catch((err) => {
@@ -44,7 +50,25 @@ app.get('/lembrete', (req, res, next) => {
     });
 });
 
-app.post('/lembrete', (req, res, next) => {});
+app.post('/lembrete', (req, res, next) => {
+    const lembrete = new Lembrete({
+        conteudo: req.body.conteudo,
+        //converter as datas do formato 'dd/mm/yyyy' para o formato 'yyyy-mm-dd'
+        dataCriado: moment(req.body.dataCriado, "DD/MM/YYYY").format("YYYY-MM-DD"),
+        prazoFinal: moment(req.body.prazoFinal, "DD/MM/YYYY").format("YYYY-MM-DD"),
+        arquivado: req.body.arquivado,
+        prioridade: req.body.prioridade
+    });
+    lembrete.save()
+    .then((lembreteCadastrado) => {
+        console.log("Cadastrando item: ", lembreteCadastrado);
+        res.status(201).json(lembreteCadastrado);
+    })
+    .catch((err) => {
+        console.error("=== ERRO DE CADASTRO ===\n", err);
+        res.status(500).json({msg:'erro de cadastro'});
+    });
+});
 
 app.put('/lembrete/:id', (req, res, next) => {});
 

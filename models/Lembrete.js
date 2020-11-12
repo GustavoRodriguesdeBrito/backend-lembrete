@@ -8,8 +8,7 @@ const lembreteSchema = mongoose.Schema({
         enum: ['BAIXA', 'MEDIA', 'ALTA'],
         required: true,
     },
-    //TODO: perguntar o que esse campo representa. false for now
-    modificado: { type: Number, required: false },
+    modificado: { type: Date, required: false }, ///? é uma data de última modificação
     dataCriado: { type: Date, required: true },
     prazoFinal: { type: Date, required: true },
 });

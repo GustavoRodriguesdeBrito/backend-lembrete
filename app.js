@@ -39,14 +39,25 @@ app.use((req, res, next) => {
 
 app.get('/lembrete', (req, res, next) => {
     Lembrete.find().then((lembretes) => {
-      console.log("lembretes: \n", lembretes);
-      ///* A maneira com a qual o frontend interpreta os dados requer que eles sejam enviados em um vetor sem chaves no json
-      ///* similar a "let lembretes = [{lembr1},{lembr2}...];"
-      res.status(200).json(lembretes);
+        console.log("lembretes antes da conversão de datas: \n", lembretes);
+        let arrLembs = []; //* criação de array que vai guardar os dados reformatados
+        lembretes.map((lembrete)=>{
+            console.log(lembrete);
+            let lembObj = lembrete.toObject();
+            //* A função utcOffset serve para ajustar o fuso horário, sendo usado aqui para impedir que haja
+            //* alguma mudança no dia por conta do fuso horário brasileiro
+            lembObj.dataCriado = moment(lembrete.dataCriado).utcOffset(0).format("DD/MM/YYYY");
+            lembObj.prazoFinal = moment(lembrete.prazoFinal).utcOffset(0).format("DD/MM/YYYY");
+            arrLembs = [...arrLembs,lembObj];
+        });
+        console.log("lembretes depois da conversão de datas: \n" ,arrLembs);
+        ///* A maneira com a qual o frontend interpreta os dados requer que eles sejam enviados em um vetor sem chaves no json
+        ///* similar a "let lembretes = [{lembr1},{lembr2}...];"
+        res.status(200).json(arrLembs);
     })
     .catch((err) => {
-      console.error("\n=== ERRO ===\n", err);
-      res.status(500).json({msg:"problemas ao consultar o banco de dados"});
+        console.error("\n=== ERRO ===\n", err);
+        res.status(500).json({msg:"problemas ao consultar o banco de dados"});
     });
 });
 
@@ -54,8 +65,8 @@ app.post('/lembrete', (req, res, next) => {
     const lembrete = new Lembrete({
         conteudo: req.body.conteudo,
         //converter as datas do formato 'dd/mm/yyyy' para o formato 'yyyy-mm-dd'
-        dataCriado: moment(req.body.dataCriado, "DD/MM/YYYY").format("YYYY-MM-DD"),
-        prazoFinal: moment(req.body.prazoFinal, "DD/MM/YYYY").format("YYYY-MM-DD"),
+        dataCriado: moment(req.body.dataCriado, "DD/MM/YYYY").parseZone().toDate().toISOString(),
+        prazoFinal: moment(req.body.prazoFinal, "DD/MM/YYYY").parseZone().toDate().toISOString(),
         arquivado: req.body.arquivado,
         prioridade: req.body.prioridade
     });

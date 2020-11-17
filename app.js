@@ -118,7 +118,7 @@ app.delete('/lembrete/:id', (req, res, next) => {
         })
         .catch((err) => {
             console.error('=== ERRO AO DELETAR ===\n', err);
-            res.send(500).json({
+            res.status(500).json({
                 msg: `erro ao deletar registro ${req.params.id}`,
             });
         });

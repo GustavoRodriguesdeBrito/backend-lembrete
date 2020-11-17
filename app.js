@@ -76,7 +76,6 @@ app.put('/lembrete/:id', (req, res, next) => {
     ///* "lembreteNovo" representa os novos dados que o cliente cedseja inserir no banco de dados
     const lembreteNovo = {
         conteudo: req.body.conteudo,
-        dataCriado: req.body.dataCriado,
         prazoFinal: req.body.prazoFinal,
         arquivado: req.body.arquivado,
         prioridade: req.body.prioridade,

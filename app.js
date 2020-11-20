@@ -52,6 +52,24 @@ app.get('/lembrete', (req, res, next) => {
         });
 });
 
+app.get('/lembrete/:id', (req, res, next) => {
+    Lembrete.findById(req.params.id)
+        .then((result) => {
+            if (result) {
+                res.status(200).json(result);
+            } else {
+                ///* Caso seja 'result' == null, mande 404
+                res.status(404).json({
+                    msg: `registro ${req.params.id} não encontrado`,
+                });
+            }
+        })
+        .catch((err) => {
+            console.error('\n=== ERRO DE CONSULTA ===\n', err);
+            res.status(500).json({ msg: 'erro ao consultar o banco de dados' });
+        });
+});
+
 app.post('/lembrete', (req, res, next) => {
     const lembrete = new Lembrete({
         conteudo: req.body.conteudo,

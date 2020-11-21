@@ -8,7 +8,7 @@ const lembreteSchema = mongoose.Schema({
         enum: ['BAIXA', 'MEDIA', 'ALTA'],
         required: true,
     },
-    modificado: { type: Date, required: false }, ///? é uma data de última modificação
+    modificado: { type: Date, required: false }, ///* é uma data de última modificação
     dataCriado: { type: Date, required: true },
     prazoFinal: { type: Date, required: true },
 });

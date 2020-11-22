@@ -86,12 +86,14 @@ router.put('/:id', (req, res, next) => {
 });
 
 router.patch('/:id', (req, res, next) => {
-    Lembrete.findByIdAndUpdate(req.params.id, { arquivado: req.body.arquivado })
+    Lembrete.findByIdAndUpdate(req.params.id, { arquivado: req.body.arquivado }, { new: true })
         .then((result) => {
-            console.log(result);
-            res.status(200).json({ msg: `registro`, result });
+            res.status(200).json({ msg: `status de arquivamento do registro ${req.params.id} alterado` });
         })
-        .catch((err) => {});
+        .catch((err) => {
+            console.error('=== ERRO AO ARQUIVAR ===\n', err);
+            res.status(500).json({ msg: `erro ao alternar status de arquivamento do registro ${req.params.id}` });
+        });
 });
 
 router.delete('/:id', (req, res, next) => {

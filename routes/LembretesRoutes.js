@@ -85,6 +85,15 @@ router.put('/:id', (req, res, next) => {
         });
 });
 
+router.patch('/:id', (req, res, next) => {
+    Lembrete.findByIdAndUpdate(req.params.id, { arquivado: req.body.arquivado })
+        .then((result) => {
+            console.log(result);
+            res.status(200).json({ msg: `registro`, result });
+        })
+        .catch((err) => {});
+});
+
 router.delete('/:id', (req, res, next) => {
     Lembrete.deleteOne({ _id: req.params.id })
         .then((result) => {

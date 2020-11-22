@@ -27,7 +27,11 @@ router.post('/login', (req, res, next) => {
         })
         .catch((err) => {
             console.error('=== ERRO DE LOGIN ===\n', err);
-            res.status(500).json({ msg: 'erro de login' });
+            if (err.code === 11000) {
+                res.status(400).json({ msg: 'nome de usuário já cadastrado' });
+            } else {
+                res.status(500).json({ msg: 'erro de login' });
+            }
         });
 });
 

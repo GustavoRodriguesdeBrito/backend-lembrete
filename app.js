@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const app = express();
 ///* acionar o body parser do express
 app.use(express.json());
+const jwt = require('jsonwebtoken');
 ///* importação das rotas de cada entidade
 const rotasLembrete = require('./routes/LembretesRoutes');
 const rotasUsuario = require('./routes/UsuarioRoutes');
@@ -32,13 +33,21 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader(
         'Access-Control-Allow-Headers',
-        'Origin, X-Requested-With, Content-Type, Accept'
+        'Origin, X-Requested-With, Content-Type, Accept, Authorization'
     );
     res.setHeader(
         'Access-Control-Allow-Methods',
         'GET, POST, PATCH, PUT, DELETE, OPTIONS'
     );
-    next();
+    ///* se o header 'Authorization' está sendo enviado, uma 'pre-flight request' é acionada,
+    ///* que não tem o token, causando problemas
+    if(req.method === "OPTIONS") {
+        //console.log("options triggered", req.headers);
+        res.sendStatus(200);
+    } else {
+        ///* passe adiante caso não seja uma request de método OPTIONS
+        next();
+    }
 });
 
 app.use('/lembrete', rotasLembrete);

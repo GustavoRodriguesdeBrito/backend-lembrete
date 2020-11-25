@@ -11,6 +11,7 @@ const lembreteSchema = mongoose.Schema({
     modificado: { type: Date, required: false }, ///* é uma data de última modificação
     dataCriado: { type: Date, required: true },
     prazoFinal: { type: Date, required: true },
+    usuario: { type: String, required: true }, ///* usuário que cadastrou o lembrete
 });
 
 module.exports = mongoose.model('Lembrete', lembreteSchema);

@@ -2,9 +2,31 @@ const express = require('express');
 const router = express.Router();
 const Lembrete = require('../models/Lembrete');
 const moment = require('moment');
+const jwt = require('jsonwebtoken');
+
+router.use((req, res, next) => {
+    if (!req.headers.authorization) {
+        res.status(401).json({ msg: 'token de acesso ausente' });
+    } else {
+        let token = req.headers.authorization;
+        token = token.split(' ')[1]; ///* separar a palavra 'Bearer' do token
+        jwt.verify(token, process.env.JWT_SECRET, (err, decToken) => {
+            if (err) {
+                if (err.name === 'TokenExpiredError') {
+                    res.status(401).json({ msg: 'token expirado' });
+                }
+            } else {
+                ///* caso token seja válido, mande-o para o próximo handler
+                req.token = decToken;
+                next();
+            }
+        });
+    }
+});
 
 router.get('/', (req, res, next) => {
-    Lembrete.find()
+    let token = req.token;
+    Lembrete.find({usuario: token.id})
         .then((lembretes) => {
             ///* A maneira com a qual o frontend interpreta os dados requer que eles sejam enviados em um vetor sem chaves no json
             ///* similar a "let lembretes = [{lembr1},{lembr2}...];"
@@ -44,6 +66,7 @@ router.post('/', (req, res, next) => {
         prazoFinal: req.body.prazoFinal,
         arquivado: req.body.arquivado,
         prioridade: req.body.prioridade,
+        usuario: req.token.id
     });
     lembrete
         .save()
@@ -64,6 +87,7 @@ router.put('/:id', (req, res, next) => {
         arquivado: req.body.arquivado,
         prioridade: req.body.prioridade,
         modificado: moment().utc(true).toDate(), ///* inserir data de modificação mantendo a hora local
+        usuario: req.token.id
     };
     Lembrete.updateOne({ _id: req.params.id }, lembreteNovo)
         .then((result) => {

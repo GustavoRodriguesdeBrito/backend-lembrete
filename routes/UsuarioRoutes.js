@@ -30,7 +30,7 @@ router.post('/login', (req, res, next) => {
                     process.env.JWT_SECRET,
                     { expiresIn: '1h' } ///* token é válido por 1 hora
                 );
-                res.status(200).json({ token });
+                res.status(200).json({ token, nome: user.nome });
             } else {
                 res.status(400).json({
                     msg: 'usuario e/ou senha incorretos',
